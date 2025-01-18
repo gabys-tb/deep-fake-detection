@@ -10,7 +10,7 @@
 GPUs="$1"
 NUM_GPU=$(echo $GPUs | awk -F, '{print NF}')
 DATA_TYPE="ArtiFact"  # Wang_CVPR20 or Ojha_CVPR23
-MODEL_NAME="RN50" # # RN50_mod, RN50, clip_vitl14, clip_rn50
+MODEL_NAME="RN50_mod" # # RN50_mod, RN50, clip_vitl14, clip_rn50
 MASK_TYPE="spectral" # spectral, pixel, patch or nomask
 BAND="all" # all, low, mid, high
 RATIO=15
@@ -30,9 +30,10 @@ srun python -m torch.distributed.launch --nproc_per_node=$NUM_GPU test.py \
   --model_name $MODEL_NAME \
   --mask_type $MASK_TYPE \
   --band $BAND \
-  --ratio $RATIO \
+  --ratio 15 \
   --batch_size $BATCH_SIZE \
   --local_rank 0\
+  --results_path results/resultsRN50_mod.json \
   # --other_model
 
   
