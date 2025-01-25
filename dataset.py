@@ -141,10 +141,11 @@ class Wang_CVPR20(Dataset):
         
 
 class ArtiFact(Dataset):
-    def __init__(self, root_dir, label, load_percentage=100, transform=None):
+    def __init__(self, root_dir, label, load_percentage=100, transform=None, AL_name = False):
         self.root_dir = root_dir
         self.metadata = pd.DataFrame()
         self.label = label
+        self.AL_name = AL_name
     
         if os.path.isdir(root_dir):
             subdir_metadata = pd.read_csv(os.path.join(root_dir, 'metadata.csv'))
@@ -169,10 +170,14 @@ class ArtiFact(Dataset):
     def __getitem__(self, idx):
         img_path = self.metadata.iloc[idx]['image_path']
         image = Image.open(img_path).convert("RGB")
+        #declare the name here
+        # name = ...
     
         if self.transform:
             image = self.transform(image)
-            
+        
+        if self.AL_name:
+            return image, name
 
         return image, self.label
 
