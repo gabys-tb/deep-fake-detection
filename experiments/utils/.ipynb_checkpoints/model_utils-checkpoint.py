@@ -33,8 +33,6 @@ def train_function(model, train_dataloader, n_epochs, criterion, optimizer, devi
 
                 tepoch.set_postfix(loss=epoch_loss)
         losses.append(epoch_loss/len(train_dataloader.dataset))
-        '''if epoch%5 == 0:
-            torch.save(model.state_dict(), f"/pgeoprj/godeep/fjqv/ckpt/AL1/CBAMUnetDiverseAL_ckpt_{epoch+1}.pt")'''
     if loss_plot_name is not None:
         plt.plot(losses)
         plt.savefig(loss_plot_name)
@@ -57,7 +55,7 @@ def get_metrics(output, label):
 
     return p, r, f1, a
 
-def evaluate(model, device, criterion, dataloader=None):
+def evaluate_function(model, device, criterion, dataloader=None):
     """
     Evaluate the model on a list of cube names and their corresponding targets.
 
@@ -113,17 +111,19 @@ def evaluate(model, device, criterion, dataloader=None):
 
     return avg_p, avg_r, avg_f1, avg_a, avg_loss
 
-def active_learning(list_1, list_2, batch_size, n_epochs, model, optimizer, data_path, num_of_rounds=100, criterion = nn.BCEWithLogitsLoss()):
+def active_learning(list_1, list_2, evaluate_list, batch_size, n_epochs, model, optimizer, data_path, num_of_rounds=100, criterion = nn.BCEWithLogitsLoss()):
     datalist_1 = list_1
     datalist_2 = list_2
 
+    dataloader_evaluate = DataLoader(ArtifactBadge(evaluate_list), 1)
+
     device = next(model.parameters()).device
 
-    #TO DO:
-    # metric_1_list = []
-    # metric_2_list = []
-    # metric_3_list = []
-    # ...
+    precision_list = []
+    recall_list = []
+    f1_list = []
+    accuracy_list = []
+    loss_list = []
     
     for i in range(num_of_rounds):
         dataloader_1 = DataLoader(ArtiFactBadge(datalist_1), batch_size)
@@ -144,13 +144,14 @@ def active_learning(list_1, list_2, batch_size, n_epochs, model, optimizer, data
             for element in pick:
                 datalist_1.append(element)
                 datalist_2.remove(element)
-            #TO DO:
-            #metric_1, metric_2, metric_3 ... = evaluate_function()
-            #metric_1_list.append(metric_1)
-            #metric_2_list.append(metric_2)
-            #metric_3_list.append(metric_3)
-            #...
-    return #PUT ALL METRIC LISTS HERE!
+            p, r, f, a, l = evaluate_function(model, device, criterion, dataloader=dataloader_evaluate)
+            precision_list.append(p)
+            recall_list.append(r)
+            f1_list.append(f)
+            accuracy_list.append(a)
+            loss_list.append(l)
+
+    return precision_list, recall_list, f1_list, accuracy_list, loss_list
             
             
     
