@@ -233,11 +233,42 @@ class AllArtiFact(Dataset):
         if self.transform:
             image = self.transform(image)
             
-        if return_name:
-            return image, name 
+        if self.return_name:
+            return image, img_path
          
         return image, label
         
 
-                     
+class ArtiFactBadge(Dataset):
+    def __init__(self, paths):
+        self.datapaths = paths
+    
+        self.transform = transforms.Compose([
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+    def __len__(self):
+        return len(self.datapaths)
+
+    def __getitem__(self, idx):
+        img_path = self.datapaths[idx]
+        
+        real_sets = ['afhq','celebAHQ','coco','ffhq','imagenet','landscape','lsun','metfaces','cycle_gan']
+        
+        is_true = any(set in img_path for set in real_sets)
+        
+        if is_true:
+          label = 0
+        else:
+          label = 1
+        
+        image = Image.open(img_path).convert("RGB")
+    
+        if self.transform:
+            image = self.transform(image)
+            
+        return image, label
+                            
         
