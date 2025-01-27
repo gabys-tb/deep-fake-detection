@@ -33,8 +33,6 @@ def train_function(model, train_dataloader, n_epochs, criterion, optimizer, devi
 
                 tepoch.set_postfix(loss=epoch_loss)
         losses.append(epoch_loss/len(train_dataloader.dataset))
-        '''if epoch%5 == 0:
-            torch.save(model.state_dict(), f"/pgeoprj/godeep/fjqv/ckpt/AL1/CBAMUnetDiverseAL_ckpt_{epoch+1}.pt")'''
     if loss_plot_name is not None:
         plt.plot(losses)
         plt.savefig(loss_plot_name)
