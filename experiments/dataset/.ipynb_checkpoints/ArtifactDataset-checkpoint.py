@@ -38,13 +38,9 @@ class ArtiFact(Dataset):
     
         if self.transform:
             image = self.transform(image)
-
-        print(self.return_name)
         
         if self.return_name:
             #print("erro")
             return image, name
-        else:
-            return image, self.label
 
-        return image, self.label
+        return image, torch.tensor([self.label], dtype=torch.float32)
