@@ -181,3 +181,63 @@ class ArtiFact(Dataset):
 
         return image, self.label
 
+class AllArtiFact(Dataset):
+    def __init__(self, root_dir, set, return_name=False, load_percentage=100, transform=None):
+        self.root_dir = root_dir
+        self.metadata = pd.DataFrame()
+        self.return_name = return_name
+    
+        for i in os.listdir(root_dir):
+          sub_dataset = os.path.join(root_dir, i)
+        
+          subdir_metadata = pd.read_csv(os.path.join(sub_dataset, 'metadata.csv'))
+          subdir_metadata['image_path'] = subdir_metadata['image_path'].apply(lambda x: os.path.join(sub_dataset, x))
+          
+          self.metadata.append(subdir_metadata)
+          
+        
+        # embaralha o dataset
+        self.metadata = df.sample(frac=1).reset_index(drop=True)
+        sample_size = int(len(subdir_metadata) * (0.8))
+          
+        if set == 'train':
+            self.metadata = self.metadata.iloc[:sample_size]
+        else:
+            self.metadata = self.metadata.iloc[sample_size:]
+        
+
+        self.transform = transforms.Compose([
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+    def __len__(self):
+        return len(self.metadata)
+
+    def __getitem__(self, idx):
+        img_path = self.metadata.iloc[idx]['image_path']
+        
+        real_sets = ['afhq','celebAHQ','coco','ffhq','imagenet','landscape','lsun','metfaces','cycle_gan']
+        
+        is_true = any(set in img_path for set in real_sets)
+        
+
+        if is_true:
+          label = 0
+        else:
+          label = 1
+        
+        image = Image.open(img_path).convert("RGB")
+    
+        if self.transform:
+            image = self.transform(image)
+            
+        if return_name:
+            return image, name 
+         
+        return image, label
+        
+
+                     
+        
